@@ -1,0 +1,22 @@
+{
+  "services": {
+    "admin": {
+      "root": "admin",
+      "framework": "vite"
+    },
+    "web-user": {
+      "root": "web-user",
+      "framework": "vite"
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/admin/(.*)",
+      "destination": { "service": "admin" }
+    },
+    {
+      "source": "/(.*)",
+      "destination": { "service": "web-user" }
+    }
+  ]
+}

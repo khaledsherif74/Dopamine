@@ -6,6 +6,7 @@ import { store } from "@/store/store";
 import { bootstrapAuth } from "@/features/auth/authSlice";
 import App from "./App";
 import "./index.css";
+import { BrowserRouter } from "react-router-dom";
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
@@ -20,7 +21,9 @@ store.dispatch(bootstrapAuth());
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <Provider store={store}>
-      <App />
+      <BrowserRouter basename="/admin">
+        <App />
+      </BrowserRouter>
     </Provider>
   </React.StrictMode>,
 );

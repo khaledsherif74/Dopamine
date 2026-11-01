@@ -1,0 +1,19 @@
+{
+  "name": "dopamine-web",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Web front-ends (npm workspaces). The backend and the three Expo apps are NOT part of this workspace and keep their own installs.",
+  "workspaces": [
+    "web-shared",
+    "web-user",
+    "admin"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "build:user": "npm run build -w web-user",
+    "dev:user": "npm run dev -w web-user",
+    "dev:admin": "npm run dev -w admin",
+    "test": "npm run test --workspaces --if-present",
+    "lint": "npm run lint --workspaces --if-present"
+  }
+}

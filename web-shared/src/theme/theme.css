@@ -1,0 +1,87 @@
+/*
+ * Shared design tokens. Each app does:  @import "tailwindcss"; @import "@dopamine/web-shared/theme.css";
+ * and adds @source "../../web-shared/src"; so Tailwind scans the shared components.
+ * Colours are CSS variables, so light/dark/system switch by changing [data-theme] only.
+ */
+:root {
+  color-scheme: light;
+  --c-primary: #cf2b5d;
+  --c-primary-dark: #6a1b6d;
+  --c-primary-tint: #ffeff3;
+  --c-secondary: #ffb800;
+  --c-background: #fffbf2;
+  --c-surface: #ffffff;
+  --c-surface-alt: #ffeff3;
+  --c-border: #f5e0e8;
+  --c-text-primary: #3e0e4e;
+  --c-text-secondary: #6a1b6d;
+  --c-text-inverse: #ffffff;
+  --c-success: #166e4b;
+  --c-warning: #855816;
+  --c-danger: #b32b30;
+  --c-disabled: #ebdfe5;
+  --c-overlay: rgba(62, 14, 78, 0.55);
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --c-primary: #ff5c8a;
+  --c-primary-dark: #ff8aae;
+  --c-primary-tint: #3a1525;
+  --c-secondary: #ffc24b;
+  --c-background: #1a0f1e;
+  --c-surface: #251729;
+  --c-surface-alt: #2e1d33;
+  --c-border: #3a243f;
+  --c-text-primary: #f5edf8;
+  --c-text-secondary: #c2abcb;
+  --c-text-inverse: #1a0f1e;
+  --c-success: #4fcb84;
+  --c-warning: #f7b84e;
+  --c-danger: #f3797c;
+  --c-disabled: #4a3b50;
+  --c-overlay: rgba(0, 0, 0, 0.6);
+}
+
+@theme inline {
+  --color-primary: var(--c-primary);
+  --color-primary-dark: var(--c-primary-dark);
+  --color-primary-tint: var(--c-primary-tint);
+  --color-secondary: var(--c-secondary);
+  --color-background: var(--c-background);
+  --color-surface: var(--c-surface);
+  --color-surface-alt: var(--c-surface-alt);
+  --color-border: var(--c-border);
+  --color-text-primary: var(--c-text-primary);
+  --color-text-secondary: var(--c-text-secondary);
+  --color-text-inverse: var(--c-text-inverse);
+  --color-success: var(--c-success);
+  --color-warning: var(--c-warning);
+  --color-danger: var(--c-danger);
+  --color-disabled: var(--c-disabled);
+  --color-overlay: var(--c-overlay);
+  --font-sans: 'Poppins', 'Segoe UI', Tahoma, system-ui, -apple-system, sans-serif;
+}
+
+html {
+  background: var(--c-background);
+  color: var(--c-text-primary);
+  font-family: var(--font-sans);
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+}
+
+:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

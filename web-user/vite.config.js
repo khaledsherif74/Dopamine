@@ -5,7 +5,7 @@ import { fileURLToPath, URL } from "node:url";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const api = env.VITE_API_PROXY || "http://localhost:5000";
+  const api = env.VITE_API_BASE_URL || "http://localhost:5000";
   return {
     plugins: [react(), tailwindcss()],
     resolve: {

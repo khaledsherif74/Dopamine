@@ -10,13 +10,7 @@
     }
   },
   "rewrites": [
-    {
-      "source": "/admin/(.*)",
-      "destination": { "service": "admin" }
-    },
-    {
-      "source": "/(.*)",
-      "destination": { "service": "web-user" }
-    }
+    { "source": "/admin(.*)", "destination": { "service": "admin" } },
+    { "source": "/(.*)", "destination": { "service": "web-user" } }
   ]
 }

@@ -2,15 +2,21 @@
   "services": {
     "admin": {
       "root": "admin",
-      "framework": "vite"
+      "framework": "vite",
+      "rewrites": [
+        { "source": "/admin/assets/:path*", "destination": "/assets/:path*" },
+        { "source": "/admin/favicon.svg", "destination": "/favicon.svg" },
+        { "source": "/admin/:path*", "destination": "/index.html" }
+      ]
     },
     "web-user": {
       "root": "web-user",
-      "framework": "vite"
+      "framework": "vite",
+      "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
     }
   },
   "rewrites": [
-    { "source": "/admin(.*)", "destination": { "service": "admin" } },
+    { "source": "/admin/:path*", "destination": { "service": "admin" } },
     { "source": "/(.*)", "destination": { "service": "web-user" } }
   ]
 }

@@ -6,13 +6,22 @@
   "workspaces": [
     "web-shared",
     "web-user",
+    "support-app",
+    "web-supplier",
+    "web-driver",
     "admin"
   ],
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "build:user": "npm run build -w web-user",
-    "dev:user": "npm run dev -w web-user",
+    "build:supplier": "npm run build -w web-supplier",
+    "build:driver": "npm run build -w web-driver",
+    "build:support": "npm run build -w support-app",
     "dev:admin": "npm run dev -w admin",
+    "dev:user": "npm run dev -w web-user",
+    "dev:driver": "npm run dev -w web-driver",
+    "dev:supplier": "npm run dev -w web-supplier",
+    "dev:support": "npm run dev -w support-app",
     "test": "npm run test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   }

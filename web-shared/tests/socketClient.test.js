@@ -86,6 +86,28 @@ describe('createSocketClient', () => {
     expect(h.emitted).toContainEqual(['ticket:leave', { ticketId: 't1' }]);
   });
 
+  it('support queue: relays the three queue events, joins nothing, signals every (re)connect, unsubscribes', () => {
+    const got = []; let connects = 0;
+    const off = client.subscribeSupportQueue({
+      onCreated: p => got.push(['created', p.ticketId]),
+      onUpdated: p => got.push(['updated', p.ticketId]),
+      onMessage: p => got.push(['message', p.ticketId]),
+      onConnected: () => { connects++; },
+    });
+    h.socket.connected = true; h.fire('connect'); h.fire('connect'); // connect, then a reconnect
+    expect(connects).toBe(2);
+    expect(h.emitted.length).toBe(0); // the server auto-joins role:SUPPORT
+    h.fire('support:ticket_created', { ticketId: 'a' });
+    h.fire('ticket:updated', { ticketId: 'b' });
+    h.fire('support:ticket_message', { ticketId: 'c' });
+    expect(got).toEqual([['created', 'a'], ['updated', 'b'], ['message', 'c']]);
+    off();
+    h.fire('ticket:updated', { ticketId: 'z' });
+    h.fire('connect');
+    expect(got.length).toBe(3);
+    expect(connects).toBe(2);
+  });
+
   it('order chat: filters by order AND channel', () => {
     const got = [];
     const sub = client.subscribeOrderChat('o1', 'DRIVER', { onMessage: m => got.push(m) });
@@ -139,5 +161,15 @@ describe('createSocketClient', () => {
     client.onNotification(n => got.push(n));
     h.fire('notification:new', { id: 'n1' });
     expect(got).toEqual([{ id: 'n1' }]);
+  });
+
+  it('notification subscription: optional onConnected fires on every (re)connect and stops after unsubscribe', () => {
+    let connects = 0;
+    const off = client.onNotification(() => {}, () => { connects++; });
+    h.socket.connected = true; h.fire('connect'); h.fire('connect');
+    expect(connects).toBe(2);
+    off();
+    h.fire('connect');
+    expect(connects).toBe(2);
   });
 });

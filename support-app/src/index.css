@@ -1,0 +1,4 @@
+@import 'tailwindcss';
+@import '@dopamine/web-shared/theme.css';
+/* make Tailwind generate the classes used by the shared components */
+@source '../../web-shared/src';

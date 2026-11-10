@@ -2,6 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { ProtectedRoute } from "@/router/ProtectedRoute";
 import { Layout } from "@/components/Layout";
 import { LoginPage } from "@/features/auth/LoginPage";
+import { ForgotPasswordPage } from "@/features/auth/ForgotPasswordPage";
+import { ResetPasswordPage } from "@/features/auth/ResetPasswordPage";
 import { DashboardPage } from "@/pages/DashboardPage";
 import { SuppliersPage } from "@/pages/SuppliersPage";
 import { DriversPage } from "@/pages/DriversPage";
@@ -15,6 +17,8 @@ export default function App() {
   return (
     <Routes>
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+      <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route
         path="/"
         element={

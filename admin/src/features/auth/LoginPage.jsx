@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { useLoginMutation } from "@/api/authApi";
 import { credentialsReceived } from "./authSlice";
@@ -8,6 +8,7 @@ import { credentialsReceived } from "./authSlice";
 export function LoginPage() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
   const [login, { isLoading }] = useLoginMutation();
 
   const [identifier, setIdentifier] = useState("");
@@ -75,6 +76,9 @@ export function LoginPage() {
             />
           </div>
 
+          {location.state?.notice === "reset" ? (
+            <p role="status" className="text-sm text-success">Password changed. Sign in with your new password.</p>
+          ) : null}
           {error ? <p className="text-sm text-danger">{error}</p> : null}
 
           <button
@@ -84,6 +88,9 @@ export function LoginPage() {
           >
             {isLoading ? "Signing in..." : "Sign in"}
           </button>
+          <p className="text-center text-sm">
+            <Link to="/forgot-password" className="font-semibold text-primary">Forgot password?</Link>
+          </p>
         </form>
       </div>
     </div>

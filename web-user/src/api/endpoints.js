@@ -1,4 +1,5 @@
 import { api } from './api.js';
+import { unwrapList } from './transforms.js';
 
 const data = r => r.data;
 const keyHeader = key => (key ? { 'Idempotency-Key': key } : undefined);
@@ -68,7 +69,7 @@ export const endpoints = api.injectEndpoints({
       transformResponse: data,
       invalidatesTags: (_r, _e, { id }) => [{ type: 'Refunds', id }],
     }),
-    listOrderRefunds: b.query({ query: id => `/orders/${id}/refunds`, transformResponse: data, providesTags: (_r, _e, id) => [{ type: 'Refunds', id }] }),
+    listOrderRefunds: b.query({ query: id => `/orders/${id}/refunds`, transformResponse: r => unwrapList(r, 'refunds'), providesTags: (_r, _e, id) => [{ type: 'Refunds', id }] }),
     getReorderPreview: b.query({ query: id => `/orders/${id}/reorder-preview`, transformResponse: data }),
     createReview: b.mutation({
       query: body => ({ url: '/reviews', method: 'POST', body }),

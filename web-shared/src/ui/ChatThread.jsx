@@ -16,17 +16,28 @@ import { lastSeenIndex } from '../chat/messages.js';
 export function ChatThread({
   messages, isMine, authorName, loading = false, error = '', hasOlder = false, onLoadOlder,
   onSend, canWrite = true, readOnlyText = '', typing = false, onTyping, label, maxLength = 1000, inputId = 'chat-input',
+  multiline = false, insert = null,
 }) {
   const { t, lang } = useI18n();
   const [text, setText] = useState('');
   const [sending, setSending] = useState(false);
   const [sendError, setSendError] = useState('');
   const endRef = useRef(null);
+  const inputRef = useRef(null);
   const seenAt = lastSeenIndex(messages, isMine);
 
   useEffect(() => {
     endRef.current?.scrollIntoView?.({ block: 'end' });
   }, [messages.length]);
+
+  // `insert` = { nonce, text }: a new nonce appends the text to the draft (canned replies) and focuses the box.
+  const insertNonce = insert?.nonce;
+  const insertText = insert?.text;
+  useEffect(() => {
+    if (insertNonce === undefined || !insertText) return;
+    setText(prev => `${prev ? `${prev}\n` : ''}${insertText}`.slice(0, maxLength));
+    inputRef.current?.focus?.();
+  }, [insertNonce, insertText, maxLength]);
 
   async function submit(e) {
     e.preventDefault();
@@ -81,19 +92,40 @@ export function ChatThread({
           <label htmlFor={inputId} className="sr-only">
             {t('chat.placeholder')}
           </label>
-          <input
-            id={inputId}
-            value={text}
-            maxLength={maxLength}
-            onChange={e => {
-              setText(e.target.value);
-              onTyping?.(e.target.value.length > 0);
-            }}
-            onBlur={() => onTyping?.(false)}
-            placeholder={t('chat.placeholder')}
-            className="min-w-0 flex-1 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text-primary"
-          />
-          <Button type="submit" loading={sending} disabled={!text.trim()} className="rounded-full">
+          {multiline ? (
+            <textarea
+              id={inputId}
+              ref={inputRef}
+              rows={3}
+              value={text}
+              maxLength={maxLength}
+              onChange={e => {
+                setText(e.target.value);
+                onTyping?.(e.target.value.length > 0);
+              }}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) submit(e);
+              }}
+              onBlur={() => onTyping?.(false)}
+              placeholder={t('chat.placeholder')}
+              className="min-w-0 flex-1 resize-y rounded-2xl border border-border bg-surface px-4 py-2 text-sm text-text-primary"
+            />
+          ) : (
+            <input
+              id={inputId}
+              ref={inputRef}
+              value={text}
+              maxLength={maxLength}
+              onChange={e => {
+                setText(e.target.value);
+                onTyping?.(e.target.value.length > 0);
+              }}
+              onBlur={() => onTyping?.(false)}
+              placeholder={t('chat.placeholder')}
+              className="min-w-0 flex-1 rounded-full border border-border bg-surface px-4 py-2 text-sm text-text-primary"
+            />
+          )}
+          <Button type="submit" loading={sending} disabled={!text.trim()} className="self-end rounded-full">
             {t('chat.send')}
           </Button>
         </form>

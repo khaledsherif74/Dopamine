@@ -106,6 +106,22 @@ export function createSocketClient({ url, getToken, refreshAccessToken, ioFactor
       };
     },
 
+    // SUPPORT agents: live queue. The server already puts the socket in `role:SUPPORT`, so nothing is
+    // joined. `onConnected` fires on every (re)connect: the caller refetches to catch up on missed events.
+    subscribeSupportQueue({ onCreated, onUpdated, onMessage, onConnected } = {}) {
+      const relay = fn => payload => {
+        if (fn && payload?.ticketId) fn(payload);
+      };
+      return subscribe(
+        {
+          'support:ticket_created': relay(onCreated),
+          'ticket:updated': relay(onUpdated),
+          'support:ticket_message': relay(onMessage),
+        },
+        () => onConnected?.(),
+      );
+    },
+
     // per-order chat (channel: 'SUPPLIER' | 'DRIVER')
     subscribeOrderChat(orderId, channel, { onMessage, onTyping, onRead, onJoined } = {}) {
       const only = fn => payload => {
@@ -129,8 +145,9 @@ export function createSocketClient({ url, getToken, refreshAccessToken, ioFactor
       };
     },
 
-    onNotification(handler) {
-      return subscribe({ 'notification:new': handler }, () => {});
+    // `onConnected` (optional) fires on every (re)connect: lets a caller refetch what it may have missed.
+    onNotification(handler, onConnected) {
+      return subscribe({ 'notification:new': handler }, () => onConnected?.());
     },
   };
 }

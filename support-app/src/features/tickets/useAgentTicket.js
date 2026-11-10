@@ -1,17 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { apiErrorMessage, markMineRead, mergeMessages, newestCreatedAt, unreadFromOthers, useI18n } from '@dopamine/web-shared';
-import { socketClient } from '@/lib/socket.js';
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
-  useLazyGetTicketQuery, useLazyListTicketMessagesQuery, useMarkTicketReadMutation, useReplyToTicketMutation,
-} from '@/api/endpoints.js';
+  apiErrorMessage,
+  markMineRead,
+  mergeMessages,
+  newestCreatedAt,
+  unreadFromOthers,
+  useI18n,
+} from "@dopamine/web-shared";
+import { socketClient } from "@/lib/socket.js";
+import {
+  useLazyGetTicketQuery,
+  useLazyListTicketMessagesQuery,
+  useMarkTicketReadMutation,
+  useReplyToTicketMutation,
+} from "@/api/endpoints.js";
 
 const TYPING_VISIBLE_MS = 4000;
 
-// "Mine" for an agent means: written by the support side (any agent), so only customer messages count as unread.
-export const isAgentMessage = m => m.authorRole === 'SUPPORT';
+export const isAgentMessage = (m) => m.authorRole === "SUPPORT";
 
-// History over REST, live updates over the socket. After every join (also after a reconnect)
-// the messages missed in between are fetched with ?after=.
 export function useAgentTicket({ ticketId, onChanged }) {
   const { t } = useI18n();
   const [loadTicket] = useLazyGetTicketQuery();
@@ -22,7 +29,7 @@ export function useAgentTicket({ ticketId, onChanged }) {
   const [ticket, setTicket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [joined, setJoined] = useState(false);
   const [typing, setTyping] = useState(false);
   const subRef = useRef(null);
@@ -39,8 +46,8 @@ export function useAgentTicket({ ticketId, onChanged }) {
       const data = await loadTicket(ticketId, false).unwrap();
       const { messages: history = [], ...rest } = data;
       setTicket(rest);
-      setMessages(prev => mergeMessages(prev, history));
-      setError('');
+      setMessages((prev) => mergeMessages(prev, history));
+      setError("");
     } catch (err) {
       setError(apiErrorMessage(err, t));
     } finally {
@@ -57,33 +64,50 @@ export function useAgentTicket({ ticketId, onChanged }) {
 
   useEffect(() => {
     const sub = socketClient.subscribeTicket(ticketId, {
-      onMessage: m => setMessages(prev => mergeMessages(prev, [m])),
-      onUpdated: u => {
-        setTicket(prev => (prev ? {
-          ...prev,
-          status: u.status,
-          priority: u.priority,
-          assignedAgentId: u.assignedAgentId ?? null,
-          assignedAgent: u.assignedAgentId ? (u.assignedAgent ?? (prev.assignedAgent?.id === u.assignedAgentId ? prev.assignedAgent : null)) : null,
-          resolution: u.resolution ?? prev.resolution,
-          resolvedAt: u.resolvedAt ?? null,
-        } : prev));
+      onMessage: (m) => setMessages((prev) => mergeMessages(prev, [m])),
+      onUpdated: (u) => {
+        setTicket((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: u.status,
+                priority: u.priority,
+                assignedAgentId: u.assignedAgentId ?? null,
+                assignedAgent: u.assignedAgentId
+                  ? (u.assignedAgent ??
+                    (prev.assignedAgent?.id === u.assignedAgentId
+                      ? prev.assignedAgent
+                      : null))
+                  : null,
+                resolution: u.resolution ?? prev.resolution,
+                resolvedAt: u.resolvedAt ?? null,
+              }
+            : prev,
+        );
         changedRef.current?.();
       },
-      onTyping: p => {
-        if (p.role === 'SUPPORT') return;
+      onTyping: (p) => {
+        if (p.role === "SUPPORT") return;
         setTyping(!!p.isTyping);
         clearTimeout(typingTimer.current);
-        if (p.isTyping) typingTimer.current = setTimeout(() => setTyping(false), TYPING_VISIBLE_MS);
+        if (p.isTyping)
+          typingTimer.current = setTimeout(
+            () => setTyping(false),
+            TYPING_VISIBLE_MS,
+          );
       },
-      onRead: () => setMessages(prev => markMineRead(prev, isAgentMessage)),
-      onJoined: ack => {
+      onRead: () => setMessages((prev) => markMineRead(prev, isAgentMessage)),
+      onJoined: (ack) => {
         setJoined(!!ack?.ok);
         if (!ack?.ok) return;
         const after = newestCreatedAt(messagesRef.current);
         loadAfter({ id: ticketId, after }, false)
           .unwrap()
-          .then(out => out.messages?.length && setMessages(prev => mergeMessages(prev, out.messages)))
+          .then(
+            (out) =>
+              out.messages?.length &&
+              setMessages((prev) => mergeMessages(prev, out.messages)),
+          )
           .catch(() => {});
       },
     });
@@ -97,12 +121,10 @@ export function useAgentTicket({ ticketId, onChanged }) {
   }, [ticketId, loadAfter]);
 
   const send = useCallback(
-    async body => {
+    async (body) => {
       const message = await reply({ id: ticketId, body }).unwrap();
-      setMessages(prev => mergeMessages(prev, [message]));
+      setMessages((prev) => mergeMessages(prev, [message]));
       subRef.current?.typing(false);
-      // The server takes an unassigned ticket / moves OPEN -> IN_PROGRESS on the first reply; the
-      // ticket:updated event brings the details, so just make sure we are in sync.
       reload();
       changedRef.current?.();
       return message;
@@ -117,5 +139,14 @@ export function useAgentTicket({ ticketId, onChanged }) {
     else markRead(ticketId);
   }, [unread, joined, markRead, ticketId]);
 
-  return { ticket, messages, loading, error, typing, send, reload, notifyTyping: v => subRef.current?.typing(v) };
+  return {
+    ticket,
+    messages,
+    loading,
+    error,
+    typing,
+    send,
+    reload,
+    notifyTyping: (v) => subRef.current?.typing(v),
+  };
 }

@@ -1,20 +1,22 @@
-import { fetchBaseQuery } from '@reduxjs/toolkit/query';
-import { WEB_HEADERS } from './refresher.js';
+import { fetchBaseQuery } from "@reduxjs/toolkit/query";
+import { WEB_HEADERS } from "./refresher.js";
 
-// Endpoints where a 401 means "wrong credentials / bad token", not "expired access token".
 const NO_REFRESH_PREFIXES = [
-  '/auth/login',
-  '/auth/register',
-  '/auth/oauth',
-  '/auth/refresh',
-  '/auth/forgot-password',
-  '/auth/reset-password',
-  '/auth/otp',
+  "/auth/login",
+  "/auth/register",
+  "/auth/oauth",
+  "/auth/refresh",
+  "/auth/forgot-password",
+  "/auth/reset-password",
+  "/auth/otp",
 ];
 
 export function shouldSkipRefresh(args) {
-  const url = typeof args === 'string' ? args : args?.url;
-  return typeof url === 'string' && NO_REFRESH_PREFIXES.some(p => url.startsWith(p));
+  const url = typeof args === "string" ? args : args?.url;
+  return (
+    typeof url === "string" &&
+    NO_REFRESH_PREFIXES.some((p) => url.startsWith(p))
+  );
 }
 
 /**
@@ -47,10 +49,10 @@ export function createBaseQuery({
     fetchBaseQuery({
       baseUrl,
       timeout,
-      credentials: 'include',
+      credentials: "include",
       prepareHeaders: (headers, { getState }) => {
         const token = getToken(getState());
-        if (token) headers.set('Authorization', `Bearer ${token}`);
+        if (token) headers.set("Authorization", `Bearer ${token}`);
         Object.entries(WEB_HEADERS).forEach(([k, v]) => headers.set(k, v));
         return headers;
       },
@@ -61,10 +63,10 @@ export function createBaseQuery({
     if (result.error?.status !== 401 || shouldSkipRefresh(args)) return result;
 
     const outcome = await refresher.refresh();
-    if (outcome.status === 'ok') {
+    if (outcome.status === "ok") {
       api.dispatch(onToken(outcome.accessToken));
       result = await raw(args, api, extraOptions);
-    } else if (outcome.status === 'denied') {
+    } else if (outcome.status === "denied") {
       api.dispatch(onLogout());
     }
     return result;

@@ -1,14 +1,14 @@
-// Order totals, mirroring the backend (order.service.createOrder):
-//   total = max(0, subtotal - promoDiscount) + deliveryFee
-//   the minimum order amount is checked against the SUBTOTAL (before the discount)
-// Everything in integer cents so no float drift reaches the screen.
-
-export const toCents = v => {
+export const toCents = (v) => {
   const n = Number(v);
   return Number.isFinite(n) ? Math.round(n * 100) : 0;
 };
 
-export function computeTotals({ subtotal = 0, discount = 0, deliveryFee = 0, minOrderAmount = 0 } = {}) {
+export function computeTotals({
+  subtotal = 0,
+  discount = 0,
+  deliveryFee = 0,
+  minOrderAmount = 0,
+} = {}) {
   const sub = Math.max(0, toCents(subtotal));
   const disc = Math.min(Math.max(0, toCents(discount)), sub);
   const fee = Math.max(0, toCents(deliveryFee));

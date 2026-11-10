@@ -1,8 +1,3 @@
-/*
- * Shared design tokens. Each app does:  @import "tailwindcss"; @import "@dopamine/web-shared/theme.css";
- * and adds @source "../../web-shared/src"; so Tailwind scans the shared components.
- * Colours are CSS variables, so light/dark/system switch by changing [data-theme] only.
- */
 :root {
   color-scheme: light;
   --c-primary: #cf2b5d;
@@ -23,7 +18,7 @@
   --c-overlay: rgba(62, 14, 78, 0.55);
 }
 
-:root[data-theme='dark'] {
+:root[data-theme="dark"] {
   color-scheme: dark;
   --c-primary: #ff5c8a;
   --c-primary-dark: #ff8aae;
@@ -60,7 +55,8 @@
   --color-danger: var(--c-danger);
   --color-disabled: var(--c-disabled);
   --color-overlay: var(--c-overlay);
-  --font-sans: 'Poppins', 'Segoe UI', Tahoma, system-ui, -apple-system, sans-serif;
+  --font-sans:
+    "Poppins", "Segoe UI", Tahoma, system-ui, -apple-system, sans-serif;
 }
 
 html {

@@ -1,10 +1,9 @@
 const pending = new Map();
 
-// Load a third-party script once; resolves when it is ready, rejects (and may be retried) on failure.
 export function loadScript(src) {
   if (pending.has(src)) return pending.get(src);
   const promise = new Promise((resolve, reject) => {
-    const el = document.createElement('script');
+    const el = document.createElement("script");
     el.src = src;
     el.async = true;
     el.defer = true;

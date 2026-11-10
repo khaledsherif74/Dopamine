@@ -1,19 +1,24 @@
 const env = import.meta.env;
 
 export const config = {
-  apiBaseUrl: env.VITE_API_BASE_URL || '/api/v1',
-  socketUrl: env.VITE_SOCKET_URL || (typeof window !== 'undefined' ? window.location.origin : ''),
-  googleClientId: env.VITE_GOOGLE_CLIENT_ID || '',
-  appleClientId: env.VITE_APPLE_CLIENT_ID || '',
-  appleRedirectUri: env.VITE_APPLE_REDIRECT_URI || (typeof window !== 'undefined' ? window.location.origin : ''),
-  termsUrl: env.VITE_TERMS_URL || '',
-  privacyUrl: env.VITE_PRIVACY_URL || '',
+  apiBaseUrl: env.VITE_API_BASE_URL || "/api/v1",
+  socketUrl:
+    env.VITE_SOCKET_URL ||
+    (typeof window !== "undefined" ? window.location.origin : ""),
+  googleClientId: env.VITE_GOOGLE_CLIENT_ID || "",
+  appleClientId: env.VITE_APPLE_CLIENT_ID || "",
+  appleRedirectUri:
+    env.VITE_APPLE_REDIRECT_URI ||
+    (typeof window !== "undefined" ? window.location.origin : ""),
+  termsUrl: env.VITE_TERMS_URL || "",
+  privacyUrl: env.VITE_PRIVACY_URL || "",
 };
 
-// Images may be stored as full URLs or as "/uploads/..." paths served by the API host.
 export function assetUrl(url) {
   if (!url) return null;
-  if (/^(https?:)?\/\//i.test(url) || url.startsWith('data:')) return url;
-  const origin = config.apiBaseUrl.startsWith('http') ? new URL(config.apiBaseUrl).origin : '';
-  return `${origin}${url.startsWith('/') ? '' : '/'}${url}`;
+  if (/^(https?:)?\/\//i.test(url) || url.startsWith("data:")) return url;
+  const origin = config.apiBaseUrl.startsWith("http")
+    ? new URL(config.apiBaseUrl).origin
+    : "";
+  return `${origin}${url.startsWith("/") ? "" : "/"}${url}`;
 }

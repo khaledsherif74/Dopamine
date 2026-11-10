@@ -1,14 +1,24 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { apiErrorMessage, markMineRead, mergeMessages, newestCreatedAt, unreadFromOthers, useI18n } from '@dopamine/web-shared';
-import { api } from '@/api/api.js';
-import { socketClient } from '@/lib/socket.js';
-import { useAppDispatch } from '@/lib/hooks.js';
-import { useLazyGetTicketQuery, useLazyListTicketMessagesQuery, useMarkTicketReadMutation, useSendTicketMessageMutation } from '@/api/endpoints.js';
+import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  apiErrorMessage,
+  markMineRead,
+  mergeMessages,
+  newestCreatedAt,
+  unreadFromOthers,
+  useI18n,
+} from "@dopamine/web-shared";
+import { api } from "@/api/api.js";
+import { socketClient } from "@/lib/socket.js";
+import { useAppDispatch } from "@/lib/hooks.js";
+import {
+  useLazyGetTicketQuery,
+  useLazyListTicketMessagesQuery,
+  useMarkTicketReadMutation,
+  useSendTicketMessageMutation,
+} from "@/api/endpoints.js";
 
 const TYPING_VISIBLE_MS = 4000;
 
-// History + sending over REST, live updates over the socket. After EVERY join (including the
-// re-join after a reconnect) the messages missed in between are fetched with ?after=.
 export function useTicketThread({ ticketId, myId }) {
   const { t } = useI18n();
   const dispatch = useAppDispatch();
@@ -20,13 +30,13 @@ export function useTicketThread({ ticketId, myId }) {
   const [ticket, setTicket] = useState(null);
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [joined, setJoined] = useState(false);
   const [typing, setTyping] = useState(false);
   const subRef = useRef(null);
   const typingTimer = useRef(null);
   const messagesRef = useRef([]);
-  const isMine = useCallback(m => m.authorId === myId, [myId]);
+  const isMine = useCallback((m) => m.authorId === myId, [myId]);
 
   useEffect(() => {
     messagesRef.current = messages;
@@ -36,14 +46,14 @@ export function useTicketThread({ ticketId, myId }) {
     let cancelled = false;
     loadTicket(ticketId, false)
       .unwrap()
-      .then(data => {
+      .then((data) => {
         if (cancelled) return;
         const { messages: history = [], ...rest } = data;
         setTicket(rest);
-        setMessages(prev => mergeMessages(prev, history));
-        setError('');
+        setMessages((prev) => mergeMessages(prev, history));
+        setError("");
       })
-      .catch(err => !cancelled && setError(apiErrorMessage(err, t)))
+      .catch((err) => !cancelled && setError(apiErrorMessage(err, t)))
       .finally(() => !cancelled && setLoading(false));
     return () => {
       cancelled = true;
@@ -52,25 +62,43 @@ export function useTicketThread({ ticketId, myId }) {
 
   useEffect(() => {
     const sub = socketClient.subscribeTicket(ticketId, {
-      onMessage: m => setMessages(prev => mergeMessages(prev, [m])),
-      onUpdated: u => {
-        setTicket(prev => (prev ? { ...prev, status: u.status, priority: u.priority, resolution: u.resolution ?? prev.resolution, resolvedAt: u.resolvedAt ?? null, assignedAgent: u.assignedAgent ?? prev.assignedAgent } : prev));
-        dispatch(api.util.invalidateTags(['Tickets']));
+      onMessage: (m) => setMessages((prev) => mergeMessages(prev, [m])),
+      onUpdated: (u) => {
+        setTicket((prev) =>
+          prev
+            ? {
+                ...prev,
+                status: u.status,
+                priority: u.priority,
+                resolution: u.resolution ?? prev.resolution,
+                resolvedAt: u.resolvedAt ?? null,
+                assignedAgent: u.assignedAgent ?? prev.assignedAgent,
+              }
+            : prev,
+        );
+        dispatch(api.util.invalidateTags(["Tickets"]));
       },
-      onTyping: p => {
+      onTyping: (p) => {
         setTyping(!!p.isTyping);
         clearTimeout(typingTimer.current);
-        if (p.isTyping) typingTimer.current = setTimeout(() => setTyping(false), TYPING_VISIBLE_MS);
+        if (p.isTyping)
+          typingTimer.current = setTimeout(
+            () => setTyping(false),
+            TYPING_VISIBLE_MS,
+          );
       },
-      onRead: () => setMessages(prev => markMineRead(prev, isMine)),
-      onJoined: ack => {
+      onRead: () => setMessages((prev) => markMineRead(prev, isMine)),
+      onJoined: (ack) => {
         setJoined(!!ack?.ok);
         if (!ack?.ok) return;
-        // catch up on anything that arrived while the socket was away
         const after = newestCreatedAt(messagesRef.current);
         loadAfter({ id: ticketId, after }, false)
           .unwrap()
-          .then(out => out.messages?.length && setMessages(prev => mergeMessages(prev, out.messages)))
+          .then(
+            (out) =>
+              out.messages?.length &&
+              setMessages((prev) => mergeMessages(prev, out.messages)),
+          )
           .catch(() => {});
       },
     });
@@ -83,10 +111,12 @@ export function useTicketThread({ ticketId, myId }) {
   }, [ticketId, isMine, loadAfter, dispatch]);
 
   const send = useCallback(
-    async body => {
+    async (body) => {
       const message = await sendMessage({ id: ticketId, body }).unwrap();
-      setMessages(prev => mergeMessages(prev, [message]));
-      setTicket(prev => (prev && prev.status === 'RESOLVED' ? { ...prev, status: 'OPEN' } : prev)); // the server reopens it
+      setMessages((prev) => mergeMessages(prev, [message]));
+      setTicket((prev) =>
+        prev && prev.status === "RESOLVED" ? { ...prev, status: "OPEN" } : prev,
+      );
       subRef.current?.typing(false);
       return message;
     },
@@ -100,5 +130,14 @@ export function useTicketThread({ ticketId, myId }) {
     else markRead(ticketId);
   }, [unread, joined, markRead, ticketId]);
 
-  return { ticket, messages, isMine, loading, error, typing, send, notifyTyping: v => subRef.current?.typing(v) };
+  return {
+    ticket,
+    messages,
+    isMine,
+    loading,
+    error,
+    typing,
+    send,
+    notifyTyping: (v) => subRef.current?.typing(v),
+  };
 }

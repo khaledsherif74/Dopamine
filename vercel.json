@@ -9,6 +9,36 @@
         { "source": "/admin/:path*", "destination": "/index.html" }
       ]
     },
+    "support": {
+      "root": "support-app",
+      "framework": "vite",
+      "rewrites": [
+        { "source": "/support/assets/:path*", "destination": "/assets/:path*" },
+        { "source": "/support/favicon.svg", "destination": "/favicon.svg" },
+        { "source": "/support/:path*", "destination": "/index.html" }
+      ]
+    },
+    "supplier": {
+      "root": "web-supplier",
+      "framework": "vite",
+      "rewrites": [
+        {
+          "source": "/supplier/assets/:path*",
+          "destination": "/assets/:path*"
+        },
+        { "source": "/supplier/favicon.svg", "destination": "/favicon.svg" },
+        { "source": "/supplier/:path*", "destination": "/index.html" }
+      ]
+    },
+    "driver": {
+      "root": "web-driver",
+      "framework": "vite",
+      "rewrites": [
+        { "source": "/driver/assets/:path*", "destination": "/assets/:path*" },
+        { "source": "/driver/favicon.svg", "destination": "/favicon.svg" },
+        { "source": "/driver/:path*", "destination": "/index.html" }
+      ]
+    },
     "web-user": {
       "root": "web-user",
       "framework": "vite",
@@ -17,6 +47,9 @@
   },
   "rewrites": [
     { "source": "/admin/:path*", "destination": { "service": "admin" } },
+    { "source": "/support/:path*", "destination": { "service": "support" } },
+    { "source": "/supplier/:path*", "destination": { "service": "supplier" } },
+    { "source": "/driver/:path*", "destination": { "service": "driver" } },
     { "source": "/(.*)", "destination": { "service": "web-user" } }
   ]
 }

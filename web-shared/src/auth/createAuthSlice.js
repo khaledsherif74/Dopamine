@@ -1,23 +1,24 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit';
-import { bootstrapSession } from './session.js';
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { bootstrapSession } from "./session.js";
 
-/**
- * status: 'loading' until bootstrap settles (so route guards don't flash /login on reload),
- *         then 'authenticated' | 'unauthenticated'.
- */
-export function createAuthSlice({ role, baseUrl, refresher, name = 'auth' }) {
+export function createAuthSlice({ role, baseUrl, refresher, name = "auth" }) {
   const bootstrapAuth = createAsyncThunk(`${name}/bootstrap`, async () =>
     bootstrapSession({ baseUrl, role, refresher }),
   );
 
   const slice = createSlice({
     name,
-    initialState: { user: null, accessToken: null, status: 'loading', bootstrapError: false },
+    initialState: {
+      user: null,
+      accessToken: null,
+      status: "loading",
+      bootstrapError: false,
+    },
     reducers: {
       credentialsReceived(state, { payload }) {
         state.user = payload.user;
         state.accessToken = payload.accessToken;
-        state.status = 'authenticated';
+        state.status = "authenticated";
         state.bootstrapError = false;
       },
       accessTokenRefreshed(state, { payload }) {
@@ -29,25 +30,25 @@ export function createAuthSlice({ role, baseUrl, refresher, name = 'auth' }) {
       loggedOut(state) {
         state.user = null;
         state.accessToken = null;
-        state.status = 'unauthenticated';
+        state.status = "unauthenticated";
       },
     },
-    extraReducers: builder => {
+    extraReducers: (builder) => {
       builder
         .addCase(bootstrapAuth.fulfilled, (state, { payload }) => {
-          if (payload.status === 'authenticated') {
+          if (payload.status === "authenticated") {
             state.user = payload.account;
             state.accessToken = payload.accessToken;
-            state.status = 'authenticated';
+            state.status = "authenticated";
           } else {
             state.user = null;
             state.accessToken = null;
-            state.status = 'unauthenticated';
+            state.status = "unauthenticated";
           }
-          state.bootstrapError = payload.status === 'error';
+          state.bootstrapError = payload.status === "error";
         })
-        .addCase(bootstrapAuth.rejected, state => {
-          state.status = 'unauthenticated';
+        .addCase(bootstrapAuth.rejected, (state) => {
+          state.status = "unauthenticated";
           state.bootstrapError = true;
         });
     },

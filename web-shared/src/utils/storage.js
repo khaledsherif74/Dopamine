@@ -1,8 +1,6 @@
-// localStorage can throw (private mode, quota, disabled cookies). Never let it
-// crash the app: every call is guarded and falls back to "nothing stored".
 const store = () => {
   try {
-    return typeof window !== 'undefined' ? window.localStorage : null;
+    return typeof window !== "undefined" ? window.localStorage : null;
   } catch {
     return null;
   }

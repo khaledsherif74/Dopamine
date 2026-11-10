@@ -7,6 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
   const api = env.VITE_API_PROXY || "http://localhost:5000";
   return {
+    base: "/supplier/",
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: { "@": fileURLToPath(new URL("./src", import.meta.url)) },

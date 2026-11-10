@@ -1,28 +1,33 @@
-import { ChatThread, apiErrorMessage, useI18n } from '@dopamine/web-shared';
-import { useOrderChat } from '@/features/chat/useOrderChat.js';
+import { ChatThread, apiErrorMessage, useI18n } from "@dopamine/web-shared";
+import { useOrderChat } from "@/features/chat/useOrderChat.js";
 
 export function OrderChat({ orderId, channel, myId }) {
   const { t } = useI18n();
   const chat = useOrderChat({ orderId, channel, myId });
 
-  const reason = chat.access.joined && !chat.access.canWrite ? chat.access.reason : null;
+  const reason =
+    chat.access.joined && !chat.access.canWrite ? chat.access.reason : null;
   const reasonKey = reason ? `chat.reason.${reason}` : null;
-  const readOnlyText = reason ? (t(reasonKey) === reasonKey ? t('chat.readOnly') : t(reasonKey)) : '';
+  const readOnlyText = reason
+    ? t(reasonKey) === reasonKey
+      ? t("chat.readOnly")
+      : t(reasonKey)
+    : "";
 
   return (
     <ChatThread
       messages={chat.messages}
       isMine={chat.isMine}
-      authorName={m => m.senderName}
+      authorName={(m) => m.senderName}
       loading={chat.loading}
       error={chat.error}
       hasOlder={chat.hasOlder}
       onLoadOlder={chat.loadOlder}
-      onSend={async body => {
+      onSend={async (body) => {
         try {
           await chat.send(body);
         } catch (err) {
-          throw new Error(apiErrorMessage(err, t)); // ChatThread shows the message
+          throw new Error(apiErrorMessage(err, t));
         }
       }}
       canWrite={chat.access.canWrite || !chat.access.joined}

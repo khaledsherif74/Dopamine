@@ -1,9 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { API_BASE_URL, WEB_HEADERS } from "@/api/config";
 
-// Restores the session after a page reload: the httpOnly refresh cookie is
-// exchanged for a new access token, then the admin profile is loaded.
-// Plain fetch (not RTK Query) avoids a circular import with apiSlice.
 export const bootstrapAuth = createAsyncThunk(
   "auth/bootstrap",
   async (_, { rejectWithValue }) => {
@@ -32,8 +29,6 @@ export const bootstrapAuth = createAsyncThunk(
   },
 );
 
-// "loading" until bootstrapAuth settles, so ProtectedRoute does not bounce a
-// valid session to /login on reload.
 const initialState = {
   user: null,
   accessToken: null,

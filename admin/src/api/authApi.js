@@ -6,12 +6,19 @@ export const authApi = api.injectEndpoints({
       query: (body) => ({ url: "/auth/login", method: "POST", body }),
       transformResponse: (r) => r.data,
     }),
-    // The reset e-mail link (WEB_URL_ADMIN + /reset-password?token=...) lands on the page below.
     forgotPassword: builder.mutation({
-      query: ({ email }) => ({ url: "/auth/forgot-password", method: "POST", body: { email, role: "ADMIN" } }),
+      query: ({ email }) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body: { email, role: "ADMIN" },
+      }),
     }),
     resetPassword: builder.mutation({
-      query: ({ token, newPassword }) => ({ url: "/auth/reset-password", method: "POST", body: { token, newPassword, role: "ADMIN" } }),
+      query: ({ token, newPassword }) => ({
+        url: "/auth/reset-password",
+        method: "POST",
+        body: { token, newPassword, role: "ADMIN" },
+      }),
     }),
     logout: builder.mutation({
       query: () => ({ url: "/auth/logout", method: "POST", body: {} }),
@@ -19,4 +26,9 @@ export const authApi = api.injectEndpoints({
   }),
 });
 
-export const { useLoginMutation, useForgotPasswordMutation, useResetPasswordMutation, useLogoutMutation } = authApi;
+export const {
+  useLoginMutation,
+  useForgotPasswordMutation,
+  useResetPasswordMutation,
+  useLogoutMutation,
+} = authApi;
